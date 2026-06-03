@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>VGChartz · Dashboard Estratégico</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+      :root {
+        --bg: #06111f;
+        --bg-soft: #0b1728;
+        --surface: #101d31;
+        --surface-2: #14233a;
+        --border: #223654;
+
+        --primary: #00d4ff;
+        --secondary: #22c55e;
+        --accent: #8b5cf6;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --muted-2: #64748b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(0, 212, 255, 0.14),
+            transparent 32%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(139, 92, 246, 0.12),
+            transparent 28%
+          ),
+          linear-gradient(135deg, #06111f, #020617);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 28px;
+      }
+
+      .container {
+        max-width: 1500px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+
+      .title-block h1 {
+        font-size: 2rem;
+        line-height: 1.1;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .title-block p {
+        color: var(--muted);
+        max-width: 720px;
+        line-height: 1.5;
+      }
+
+      .control-panel {
+        min-width: 260px;
+        background: rgba(16, 29, 49, 0.85);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      }
+
+      label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: var(--bg-soft);
+        color: var(--text);
+        border: 1px solid var(--border);
+        outline: none;
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 0.8rem;
+        color: var(--muted-2);
+      }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .kpi-card {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          145deg,
+          rgba(16, 29, 49, 0.95),
+          rgba(20, 35, 58, 0.95)
+        );
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 20px;
+        min-height: 130px;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
+      }
+
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        right: -40px;
+        top: -40px;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(0, 212, 255, 0.13);
+      }
+
+      .kpi-label {
+        color: var(--muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+      }
+
+      .kpi-value {
+        font-size: 2.1rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .kpi-hint {
+        color: var(--muted-2);
+        font-size: 0.8rem;
+      }
+
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+
+      .chart-card {
+        background: rgba(16, 29, 49, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 20px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+      }
+
+      .chart-card.large {
+        grid-column: span 2;
+      }
+
+      .chart-head {
+        margin-bottom: 14px;
+      }
+
+      .chart-head h3 {
+        font-size: 1.05rem;
+        margin-bottom: 6px;
+      }
+
+      .chart-head p {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+
+      .chart {
+        min-height: 330px;
+      }
+
+      .insights {
+        background: linear-gradient(
+          145deg,
+          rgba(16, 29, 49, 0.96),
+          rgba(11, 23, 40, 0.96)
+        );
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 22px;
+        margin-bottom: 20px;
+      }
+
+      .insights h3 {
+        margin-bottom: 14px;
+      }
+
+      .insights ul {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .insights li {
+        background: rgba(0, 212, 255, 0.06);
+        border: 1px solid rgba(0, 212, 255, 0.18);
+        padding: 14px;
+        border-radius: 14px;
+        color: #dbeafe;
+        line-height: 1.45;
+      }
+
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      @media (max-width: 1100px) {
+        .header {
+          flex-direction: column;
+        }
+
+        .control-panel {
+          width: 100%;
+        }
+
+        .kpi-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .chart-card.large {
+          grid-column: span 1;
+        }
+
+        .insights ul {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 650px) {
+        body {
+          padding: 16px;
+        }
+
+        .kpi-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="container" id="page">
+      <section class="header">
+        <div class="title-block">
+          <h1>🎮 VGChartz · Dashboard Estratégico</h1>
+          <p>
+            Análise de vendas, crítica, plataformas, regiões e oportunidades
+            estratégicas com base no CSV VGChartz.
+          </p>
+        </div>
+
+        <div class="control-panel">
+          <label for="genreFilter">Filtrar por gênero</label>
+          <select id="genreFilter">
+            <option value="all">Todos os gêneros</option>
+          </select>
+          <div class="status" id="statusText">Carregando dados...</div>
+        </div>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <div class="kpi-label">Jogos analisados</div>
+          <div class="kpi-value" id="totalGames">-</div>
+          <div class="kpi-hint">Quantidade no filtro atual</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-label">Vendas totais</div>
+          <div class="kpi-value" id="totalSales">-</div>
+          <div class="kpi-hint">Em milhões de unidades</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-label">Nota média</div>
+          <div class="kpi-value" id="avgCritic">-</div>
+          <div class="kpi-hint">Média da crítica</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-label">Consoles únicos</div>
+          <div class="kpi-value" id="uniqueConsoles">-</div>
+          <div class="kpi-hint">Plataformas encontradas</div>
+        </article>
+      </section>
+
+      <section class="charts-grid">
+        <article class="chart-card">
+          <div class="chart-head">
+            <h3>🏆 Top Consoles por Vendas</h3>
+            <p>Mostra quais plataformas concentram maior volume comercial.</p>
+          </div>
+          <div id="consoleChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-head">
+            <h3>🎯 Top Gêneros por Vendas</h3>
+            <p>Ajuda a entender quais categorias dominam o mercado.</p>
+          </div>
+          <div id="genreChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-head">
+            <h3>🕹️ Market Share dos Consoles</h3>
+            <p>Participação relativa das plataformas no volume de vendas.</p>
+          </div>
+          <div id="marketShareChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-head">
+            <h3>🌎 Distribuição Regional</h3>
+            <p>Indica quais regiões têm maior peso estratégico.</p>
+          </div>
+          <div id="regionalChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card large">
+          <div class="chart-head">
+            <h3>📈 Quadrante Estratégico: Nota × Vendas</h3>
+            <p>
+              Cada bolha representa um gênero. Quanto maior a bolha, maior a
+              quantidade de jogos.
+            </p>
+          </div>
+          <div id="quadrantChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-head">
+            <h3>⭐ Distribuição das Notas</h3>
+            <p>Mostra concentração de jogos por faixa de avaliação crítica.</p>
+          </div>
+          <div id="histogramChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-head">
+            <h3>🧭 Radar Estratégico</h3>
+            <p>
+              Compara gêneros por vendas, crítica, presença global e
+              oportunidade.
+            </p>
+          </div>
+          <div id="radarChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card large">
+          <div class="chart-head">
+            <h3>🏢 Publishers: Vendas e Nota Média</h3>
+            <p>
+              Compara volume comercial com percepção crítica das principais
+              publishers.
+            </p>
+          </div>
+          <div id="publisherChart" class="chart"></div>
+        </article>
+
+        <article class="chart-card large">
+          <div class="chart-head">
+            <h3>🔬 Jogos: Crítica × Vendas</h3>
+            <p>
+              Ajuda a observar se notas maiores se relacionam com maior venda.
+            </p>
+          </div>
+          <div id="scatterChart" class="chart"></div>
+        </article>
+      </section>
+
+      <section class="insights">
+        <h3>💡 Insights automáticos</h3>
+        <ul id="insightsList"></ul>
+      </section>
+    </main>
+
+    <script>
+      const chartTheme = {
+        mode: "dark",
+        palette: "palette1",
+      };
+
+      const colors = [
+        "#00d4ff",
+        "#22c55e",
+        "#8b5cf6",
+        "#f59e0b",
+        "#ef4444",
+        "#14b8a6",
+        "#ec4899",
+        "#38bdf8",
+        "#a3e635",
+        "#fb7185",
+      ];
+
+      const charts = {};
+
+      function destroyChart(id) {
+        if (charts[id]) {
+          charts[id].destroy();
+          charts[id] = null;
+        }
+      }
+
+      function baseOptions() {
+        return {
+          chart: {
+            foreColor: "#cbd5e1",
+            toolbar: {
+              show: false,
+            },
+            animations: {
+              enabled: true,
+              easing: "easeinout",
+              speed: 600,
+            },
+          },
+          theme: chartTheme,
+          colors,
+          grid: {
+            borderColor: "rgba(148,163,184,0.15)",
+          },
+          tooltip: {
+            theme: "dark",
+          },
+        };
+      }
+
+      async function loadGenres() {
+        const response = await fetch("/api/genres");
+        const genres = await response.json();
+
+        const select = document.getElementById("genreFilter");
+
+        genres.forEach((genre) => {
+          const option = document.createElement("option");
+          option.value = genre;
+          option.textContent = genre;
+          select.appendChild(option);
+        });
+      }
+
+      async function loadDashboard(genre = "all") {
+        const page = document.getElementById("page");
+        const status = document.getElementById("statusText");
+
+        try {
+          page.classList.add("loading");
+          status.textContent = "Atualizando dashboard...";
+
+          const response = await fetch(
+            `/api/summary?genre=${encodeURIComponent(genre)}`,
+          );
+
+          if (!response.ok) {
+            throw new Error(`Erro HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          updateKPIs(data.globalMetrics);
+          renderTopConsoles(data.topConsoles);
+          renderTopGenres(data.topGenres);
+          renderMarketShare(data.marketShare);
+          renderRegional(data.regional);
+          renderQuadrant(data.quadrant);
+          renderHistogram(data.criticHistogram);
+          renderRadar(data.radar);
+          renderPublishers(data.topPublishers);
+          renderScatter(data.scatter);
+          renderInsights(data.insights);
+
+          status.textContent = "Dados carregados com sucesso.";
+        } catch (error) {
+          console.error(error);
+          status.textContent = "Erro ao carregar dados. Verifique o Flask.";
+        } finally {
+          page.classList.remove("loading");
+        }
+      }
+
+      function updateKPIs(metrics) {
+        document.getElementById("totalGames").textContent = Number(
+          metrics.totalGames,
+        ).toLocaleString("pt-BR");
+
+        document.getElementById("totalSales").textContent = `${Number(
+          metrics.totalSales,
+        ).toLocaleString("pt-BR", {
+          maximumFractionDigits: 0,
+        })}M`;
+
+        document.getElementById("avgCritic").textContent = Number(
+          metrics.avgCritic,
+        ).toFixed(1);
+
+        document.getElementById("uniqueConsoles").textContent = Number(
+          metrics.uniqueConsoles,
+        ).toLocaleString("pt-BR");
+      }
+
+      function renderTopConsoles(data) {
+        const id = "consoleChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "bar",
+            height: 330,
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              borderRadius: 6,
+            },
+          },
+          series: [
+            {
+              name: "Vendas",
+              data: Object.values(data),
+            },
+          ],
+          xaxis: {
+            categories: Object.keys(data),
+            labels: {
+              formatter: (value) => `${Number(value).toFixed(0)}M`,
+            },
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderTopGenres(data) {
+        const id = "genreChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "bar",
+            height: 330,
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 6,
+              columnWidth: "55%",
+            },
+          },
+          series: [
+            {
+              name: "Vendas",
+              data: Object.values(data),
+            },
+          ],
+          xaxis: {
+            categories: Object.keys(data),
+          },
+          yaxis: {
+            labels: {
+              formatter: (value) => `${Number(value).toFixed(0)}M`,
+            },
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderMarketShare(data) {
+        const id = "marketShareChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "donut",
+            height: 330,
+          },
+          labels: data.labels,
+          series: data.values,
+          legend: {
+            position: "bottom",
+          },
+          dataLabels: {
+            enabled: true,
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderRegional(data) {
+        const id = "regionalChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "radialBar",
+            height: 330,
+          },
+          labels: Object.keys(data),
+          series: Object.values(data),
+          plotOptions: {
+            radialBar: {
+              dataLabels: {
+                value: {
+                  formatter: (value) => `${Number(value).toFixed(1)}%`,
+                },
+              },
+            },
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderQuadrant(points) {
+        const id = "quadrantChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "bubble",
+            height: 390,
+          },
+          series: points.map((point) => ({
+            name: point.name,
+            data: [[point.x, point.y, point.z]],
+          })),
+          xaxis: {
+            title: {
+              text: "Nota média da crítica",
+            },
+            min: 0,
+            max: 10,
+          },
+          yaxis: {
+            title: {
+              text: "Vendas totais (M)",
+            },
+            labels: {
+              formatter: (value) => `${Number(value).toFixed(0)}M`,
+            },
+          },
+          tooltip: {
+            custom: function ({ seriesIndex, w }) {
+              const item = points[seriesIndex];
+
+              return `
+                <div style="padding:10px">
+                  <strong>${item.name}</strong><br/>
+                  Nota: ${item.x}<br/>
+                  Vendas: ${item.y}M<br/>
+                  Jogos: ${item.z}
+                </div>
+              `;
+            },
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderHistogram(data) {
+        const id = "histogramChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "area",
+            height: 330,
+          },
+          stroke: {
+            curve: "smooth",
+            width: 3,
+          },
+          fill: {
+            type: "gradient",
+            gradient: {
+              shadeIntensity: 0.4,
+              opacityFrom: 0.55,
+              opacityTo: 0.05,
+            },
+          },
+          series: [
+            {
+              name: "Quantidade de jogos",
+              data: data.values,
+            },
+          ],
+          xaxis: {
+            categories: data.labels,
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderRadar(data) {
+        const id = "radarChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "radar",
+            height: 330,
+          },
+          series: data.series,
+          xaxis: {
+            categories: data.categories,
+          },
+          yaxis: {
+            min: 0,
+            max: 100,
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderPublishers(data) {
+        const id = "publisherChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "line",
+            height: 380,
+          },
+          stroke: {
+            width: [0, 4],
+            curve: "smooth",
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 6,
+              columnWidth: "50%",
+            },
+          },
+          series: [
+            {
+              name: "Vendas",
+              type: "column",
+              data: data.sales,
+            },
+            {
+              name: "Nota média",
+              type: "line",
+              data: data.critic,
+            },
+          ],
+          xaxis: {
+            categories: data.labels,
+          },
+          yaxis: [
+            {
+              title: {
+                text: "Vendas (M)",
+              },
+            },
+            {
+              opposite: true,
+              min: 0,
+              max: 10,
+              title: {
+                text: "Nota média",
+              },
+            },
+          ],
+        });
+
+        charts[id].render();
+      }
+
+      function renderScatter(points) {
+        const id = "scatterChart";
+        destroyChart(id);
+
+        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
+          ...baseOptions(),
+          chart: {
+            ...baseOptions().chart,
+            type: "scatter",
+            height: 390,
+            zoom: {
+              enabled: true,
+            },
+          },
+          series: [
+            {
+              name: "Jogos",
+              data: points.map((point) => [
+                point.critic_score,
+                point.total_sales,
+              ]),
+            },
+          ],
+          xaxis: {
+            title: {
+              text: "Nota da crítica",
+            },
+            min: 0,
+            max: 10,
+          },
+          yaxis: {
+            title: {
+              text: "Vendas (M)",
+            },
+            labels: {
+              formatter: (value) => `${Number(value).toFixed(0)}M`,
+            },
+          },
+        });
+
+        charts[id].render();
+      }
+
+      function renderInsights(insights) {
+        const list = document.getElementById("insightsList");
+        list.innerHTML = "";
+
+        insights.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          list.appendChild(li);
+        });
+      }
+
+      document
+        .getElementById("genreFilter")
+        .addEventListener("change", (event) => {
+          loadDashboard(event.target.value);
+        });
+
+      loadGenres();
+      loadDashboard();
+    </script>
+  </body>
+</html>
