@@ -286,6 +286,10 @@ def summary():
     return jsonify(clean_json(payload))
 
 
+# ── RAILWAY FIX ──────────────────────────────────────────────────────────────
+# Railway injeta a variável PORT dinamicamente.
+# O app DEVE escutar em 0.0.0.0 (não em 127.0.0.1) e na porta certa.
+# Nunca use debug=True em produção.
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port, debug=False)
