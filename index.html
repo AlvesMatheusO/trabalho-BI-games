@@ -1,894 +1,1026 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>VGChartz · Inteligência de Mercado</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+  /* ═══════════════════════════ TOKENS ═══════════════════════ */
+  :root {
+    --ink:    #0a0b10;
+    --ink2:   #12141d;
+    --ink3:   #1a1d2b;
+    --ink4:   #232740;
+    --rule:   rgba(255,255,255,.07);
+    --rule2:  rgba(255,255,255,.12);
 
-    <title>VGChartz · Dashboard Estratégico</title>
+    --chalk:  #f0eeea;
+    --chalk2: #9a97a8;
+    --chalk3: #5a576a;
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    --lime:   #c8f135;
+    --cyan:   #34d9c3;
+    --coral:  #ff5c6b;
+    --gold:   #ffcc44;
+    --violet: #9d7bff;
+    --sky:    #4db3ff;
+    --mint:   #3dffa8;
 
-    <style>
-      :root {
-        --bg: #06111f;
-        --bg-soft: #0b1728;
-        --surface: #101d31;
-        --surface-2: #14233a;
-        --border: #223654;
+    --grad-hero: linear-gradient(135deg,#0d1220 0%,#161028 50%,#0a1018 100%);
+    --r: 16px;
+    --r2: 24px;
+  }
 
-        --primary: #00d4ff;
-        --secondary: #22c55e;
-        --accent: #8b5cf6;
-        --warning: #f59e0b;
-        --danger: #ef4444;
+  /* ═══════════════════════════ RESET ════════════════════════ */
+  *,::before,::after{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+  body{
+    background:var(--ink);
+    color:var(--chalk);
+    font-family:'DM Mono',monospace;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
 
-        --text: #f8fafc;
-        --muted: #94a3b8;
-        --muted-2: #64748b;
-      }
+  /* ═══════════════════════════ NOISE TEXTURE ════════════════ */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity:.6;
+  }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+  /* ═══════════════════════════ GRID LINES ═══════════════════ */
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 79px,var(--rule) 80px),
+      repeating-linear-gradient(90deg,transparent,transparent 79px,var(--rule) 80px);
+  }
 
-      body {
-        min-height: 100vh;
-        background:
-          radial-gradient(
-            circle at top left,
-            rgba(0, 212, 255, 0.14),
-            transparent 32%
-          ),
-          radial-gradient(
-            circle at top right,
-            rgba(139, 92, 246, 0.12),
-            transparent 28%
-          ),
-          linear-gradient(135deg, #06111f, #020617);
-        color: var(--text);
-        font-family: Arial, Helvetica, sans-serif;
-        padding: 28px;
-      }
+  /* ═══════════════════════════ LAYOUT ═══════════════════════ */
+  .wrap{max-width:1480px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 
-      .container {
-        max-width: 1500px;
-        margin: 0 auto;
-      }
+  /* ═══════════════════════════ MASTHEAD ═════════════════════ */
+  .masthead{
+    padding:40px 0 0;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:start;
+    gap:24px;
+    border-bottom:1px solid var(--rule2);
+    margin-bottom:36px;
+  }
+  .brand{display:flex;flex-direction:column;gap:4px;padding-bottom:32px}
+  .brand-eyebrow{
+    font-size:11px;letter-spacing:.25em;text-transform:uppercase;
+    color:var(--lime);display:flex;align-items:center;gap:8px;
+  }
+  .brand-eyebrow::before{
+    content:'';width:28px;height:2px;background:var(--lime);
+    display:inline-block;flex-shrink:0;
+  }
+  .brand-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(3rem,6vw,5.5rem);
+    line-height:.95;
+    letter-spacing:.02em;
+    color:var(--chalk);
+  }
+  .brand-title span{color:var(--lime)}
+  .brand-sub{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:1rem;color:var(--chalk2);margin-top:8px;max-width:560px;line-height:1.6;
+  }
 
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 24px;
-        margin-bottom: 28px;
-      }
+  /* ═══════════════════════════ CONTROL PANEL ════════════════ */
+  .ctrl-panel{
+    background:var(--ink3);
+    border:1px solid var(--rule2);
+    border-radius:var(--r2);
+    padding:20px;
+    min-width:260px;
+    align-self:flex-start;
+    margin-top:8px;
+  }
+  .ctrl-label{
+    font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--chalk3);margin-bottom:10px;
+  }
+  .ctrl-select{
+    width:100%;padding:11px 14px;border-radius:10px;
+    background:var(--ink2);color:var(--chalk);
+    border:1px solid var(--rule2);outline:none;
+    font-family:'DM Mono',monospace;font-size:12px;
+    cursor:pointer;transition:border-color .2s;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a576a'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;
+  }
+  .ctrl-select:hover,.ctrl-select:focus{border-color:var(--lime)}
+  .ctrl-status{
+    margin-top:12px;font-size:10px;color:var(--chalk3);
+    display:flex;align-items:center;gap:6px;
+  }
+  .status-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--lime);box-shadow:0 0 8px var(--lime);
+    flex-shrink:0;animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-      .title-block h1 {
-        font-size: 2rem;
-        line-height: 1.1;
-        margin-bottom: 10px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
+  /* ═══════════════════════════ KPI ROW ══════════════════════ */
+  .kpi-row{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:14px;margin-bottom:32px;
+  }
+  .kpi{
+    background:var(--ink2);
+    border:1px solid var(--rule2);
+    border-radius:var(--r2);
+    padding:22px 24px;
+    position:relative;overflow:hidden;
+    transition:transform .2s,border-color .2s;
+  }
+  .kpi:hover{transform:translateY(-2px);border-color:var(--rule2)}
+  .kpi::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--accent,var(--lime));
+  }
+  .kpi::after{
+    content:var(--icon,'');position:absolute;right:18px;bottom:12px;
+    font-size:3rem;opacity:.07;line-height:1;pointer-events:none;
+  }
+  .kpi-label{
+    font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--chalk3);margin-bottom:12px;
+  }
+  .kpi-value{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:3rem;line-height:1;color:var(--chalk);
+    letter-spacing:.02em;
+  }
+  .kpi-hint{font-size:10px;color:var(--chalk3);margin-top:6px}
+  .kpi-badge{
+    display:inline-block;margin-top:8px;
+    font-size:9px;padding:2px 8px;border-radius:99px;
+    background:rgba(200,241,53,.12);color:var(--lime);
+    border:1px solid rgba(200,241,53,.25);
+  }
 
-      .title-block p {
-        color: var(--muted);
-        max-width: 720px;
-        line-height: 1.5;
-      }
+  /* ═══════════════════════════ SECTION TITLE ════════════════ */
+  .section-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:12px;margin-bottom:16px;
+  }
+  .section-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.6rem;letter-spacing:.04em;color:var(--chalk);
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-title::before{
+    content:'';display:block;width:4px;height:22px;
+    background:var(--accent,var(--lime));border-radius:2px;flex-shrink:0;
+  }
+  .section-sub{font-size:11px;color:var(--chalk3);font-family:'DM Mono',monospace}
 
-      .control-panel {
-        min-width: 260px;
-        background: rgba(16, 29, 49, 0.85);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-      }
+  /* ═══════════════════════════ CHART CARD ═══════════════════ */
+  .grid{display:grid;gap:14px;margin-bottom:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  .g12{grid-template-columns:1fr 2fr}
+  .g21{grid-template-columns:2fr 1fr}
+  .full{grid-column:1/-1}
 
-      label {
-        display: block;
-        font-size: 0.8rem;
-        color: var(--muted);
-        margin-bottom: 8px;
-      }
+  .card{
+    background:var(--ink2);
+    border:1px solid var(--rule2);
+    border-radius:var(--r2);
+    padding:22px 24px;
+    position:relative;overflow:hidden;
+    transition:border-color .2s;
+  }
+  .card:hover{border-color:rgba(255,255,255,.16)}
+  .card-accent{
+    position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--accent,var(--lime));
+  }
+  .card-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.2rem;letter-spacing:.04em;margin-bottom:3px;
+    color:var(--chalk);
+  }
+  .card-desc{
+    font-size:10px;color:var(--chalk3);
+    margin-bottom:18px;line-height:1.5;
+  }
+  .chart-box{position:relative}
+  .chart-box .apexcharts-canvas{margin:0 auto}
 
-      select {
-        width: 100%;
-        padding: 12px 14px;
-        border-radius: 12px;
-        background: var(--bg-soft);
-        color: var(--text);
-        border: 1px solid var(--border);
-        outline: none;
-      }
+  /* ═══════════════════════════ SCATTER CALLOUTS ══════════════ */
+  .scatter-legend{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;
+  }
+  .sl-item{
+    display:flex;align-items:center;gap:5px;
+    font-size:10px;color:var(--chalk2);
+  }
+  .sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-      .status {
-        margin-top: 10px;
-        font-size: 0.8rem;
-        color: var(--muted-2);
-      }
+  /* ═══════════════════════════ INSIGHTS ═════════════════════ */
+  .insights-section{
+    background:var(--ink2);border:1px solid var(--rule2);
+    border-radius:var(--r2);padding:24px;margin-bottom:32px;
+    position:relative;overflow:hidden;
+  }
+  .insights-section::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--lime),var(--cyan),var(--coral),var(--violet));
+  }
+  .insights-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:10px;margin-top:16px;
+  }
+  .insight-item{
+    background:var(--ink3);border:1px solid var(--rule2);
+    border-radius:12px;padding:16px;
+    border-left:3px solid var(--lime);
+    font-size:11px;color:var(--chalk2);line-height:1.6;
+    position:relative;
+  }
+  .insight-item::before{
+    content:'💡';position:absolute;top:14px;right:14px;font-size:16px;opacity:.4;
+  }
 
-      .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-      }
+  /* ═══════════════════════════ TOP GAMES TABLE ═══════════════ */
+  .games-table{width:100%;border-collapse:collapse;font-size:11px}
+  .games-table th{
+    font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+    color:var(--chalk3);padding:8px 12px;border-bottom:1px solid var(--rule2);
+    text-align:left;font-weight:400;white-space:nowrap;
+  }
+  .games-table td{
+    padding:9px 12px;border-bottom:1px solid var(--rule);
+    color:var(--chalk2);vertical-align:middle;
+  }
+  .games-table tr:hover td{background:rgba(255,255,255,.025);color:var(--chalk)}
+  .games-table tr:last-child td{border-bottom:none}
+  .gt-rank{
+    font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+    color:var(--chalk3);width:36px;text-align:center;
+  }
+  .gt-title{font-weight:500;color:var(--chalk);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gt-bar{display:flex;align-items:center;gap:8px}
+  .gt-bar-bg{background:var(--ink3);border-radius:99px;height:5px;flex:1;overflow:hidden;min-width:60px}
+  .gt-bar-fill{height:100%;border-radius:99px}
+  .gt-score{
+    font-family:'DM Mono',monospace;font-size:12px;
+    display:inline-flex;align-items:center;gap:3px;
+  }
+  .score-star{color:var(--gold);font-size:10px}
+  .genre-chip{
+    display:inline-block;font-size:9px;padding:2px 8px;border-radius:99px;
+    background:rgba(255,255,255,.06);border:1px solid var(--rule2);
+    color:var(--chalk2);white-space:nowrap;
+  }
 
-      .kpi-card {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(
-          145deg,
-          rgba(16, 29, 49, 0.95),
-          rgba(20, 35, 58, 0.95)
-        );
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 20px;
-        min-height: 130px;
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
-      }
+  /* ═══════════════════════════ LOADING SKELETON ══════════════ */
+  .skeleton{
+    background:linear-gradient(90deg,var(--ink3) 25%,var(--ink4) 50%,var(--ink3) 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.5s infinite;
+    border-radius:6px;
+  }
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-      .kpi-card::after {
-        content: "";
-        position: absolute;
-        right: -40px;
-        top: -40px;
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        background: rgba(0, 212, 255, 0.13);
-      }
+  /* ═══════════════════════════ FADE IN ═══════════════════════ */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .card,.kpi,.insights-section{animation:fadeUp .4s ease both}
+  .kpi:nth-child(1){animation-delay:.05s} .kpi:nth-child(2){animation-delay:.1s}
+  .kpi:nth-child(3){animation-delay:.15s} .kpi:nth-child(4){animation-delay:.2s}
 
-      .kpi-label {
-        color: var(--muted);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 12px;
-      }
+  /* ═══════════════════════════ FOOTER ════════════════════════ */
+  .footer{
+    border-top:1px solid var(--rule);padding:20px 0 32px;
+    text-align:center;font-size:10px;color:var(--chalk3);
+    letter-spacing:.1em;text-transform:uppercase;
+  }
+  .footer a{color:var(--chalk3);text-decoration:none}
 
-      .kpi-value {
-        font-size: 2.1rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-      }
+  /* ═══════════════════════════ SCROLLBAR ════════════════════ */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--ink4);border-radius:3px}
 
-      .kpi-hint {
-        color: var(--muted-2);
-        font-size: 0.8rem;
-      }
+  /* ═══════════════════════════ RESPONSIVE ═══════════════════ */
+  @media(max-width:1100px){
+    .masthead{grid-template-columns:1fr;padding-bottom:0}
+    .ctrl-panel{width:100%}
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .g2,.g3,.g12,.g21{grid-template-columns:1fr}
+    .insights-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    .wrap{padding:0 16px}
+    .kpi-row{grid-template-columns:1fr}
+    .brand-title{font-size:3rem}
+  }
+  </style>
+</head>
+<body>
+<div class="wrap">
 
-      .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 18px;
-        margin-bottom: 18px;
-      }
+  <!-- ══ MASTHEAD ══ -->
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand-eyebrow">Painel de Inteligência · VGChartz 2024</span>
+      <h1 class="brand-title">Games<br><span>Market</span><br>Intelligence</h1>
+      <p class="brand-sub">Análise estratégica de vendas, crítica especializada, mercados regionais e oportunidades de portfólio — baseado em 64.016 registros históricos.</p>
+    </div>
+    <div class="ctrl-panel">
+      <div class="ctrl-label">Filtrar por gênero</div>
+      <select class="ctrl-select" id="genreFilter">
+        <option value="all">— Todos os gêneros —</option>
+      </select>
+      <div class="ctrl-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Carregando dados...</span>
+      </div>
+    </div>
+  </header>
 
-      .chart-card {
-        background: rgba(16, 29, 49, 0.92);
-        border: 1px solid var(--border);
-        border-radius: 22px;
-        padding: 20px;
-        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
-      }
+  <!-- ══ KPIs ══ -->
+  <section class="kpi-row">
+    <div class="kpi" style="--accent:var(--lime);--icon:'🎮'">
+      <div class="kpi-label">Jogos analisados</div>
+      <div class="kpi-value" id="totalGames">—</div>
+      <div class="kpi-hint">Títulos no filtro atual</div>
+      <span class="kpi-badge" id="gamesChange">filtrando...</span>
+    </div>
+    <div class="kpi" style="--accent:var(--cyan);--icon:'📦'">
+      <div class="kpi-label">Vendas Totais</div>
+      <div class="kpi-value" id="totalSales">—</div>
+      <div class="kpi-hint">Em milhões de unidades</div>
+    </div>
+    <div class="kpi" style="--accent:var(--gold);--icon:'⭐'">
+      <div class="kpi-label">Nota Crítica Média</div>
+      <div class="kpi-value" id="avgCritic">—</div>
+      <div class="kpi-hint">Média ponderada · 0–10</div>
+    </div>
+    <div class="kpi" style="--accent:var(--violet);--icon:'🕹️'">
+      <div class="kpi-label">Consoles Únicos</div>
+      <div class="kpi-value" id="uniqueConsoles">—</div>
+      <div class="kpi-hint">Plataformas encontradas</div>
+    </div>
+  </section>
 
-      .chart-card.large {
-        grid-column: span 2;
-      }
+  <!-- ══ INSIGHTS ══ -->
+  <section class="insights-section">
+    <div class="section-head">
+      <h2 class="section-title" style="--accent:var(--lime)">Insights Automáticos</h2>
+      <span class="section-sub">gerados em tempo real pelo backend Flask</span>
+    </div>
+    <div class="insights-grid" id="insightsList"></div>
+  </section>
 
-      .chart-head {
-        margin-bottom: 14px;
-      }
+  <!-- ══ ROW 1: Consoles + Gêneros ══ -->
+  <div class="section-head">
+    <h2 class="section-title" style="--accent:var(--cyan)">Volumes de Mercado</h2>
+  </div>
+  <div class="grid g2" style="margin-bottom:32px">
+    <div class="card">
+      <div class="card-accent" style="background:var(--cyan)"></div>
+      <div class="card-title">Top Consoles por Vendas</div>
+      <div class="card-desc">Plataformas com maior volume comercial acumulado no dataset</div>
+      <div class="chart-box"><div id="consoleChart"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-accent" style="background:var(--lime)"></div>
+      <div class="card-title">Top Gêneros por Vendas</div>
+      <div class="card-desc">Categorias dominantes em unidades vendidas</div>
+      <div class="chart-box"><div id="genreChart"></div></div>
+    </div>
+  </div>
 
-      .chart-head h3 {
-        font-size: 1.05rem;
-        margin-bottom: 6px;
-      }
+  <!-- ══ ROW 2: Market Share + Regional ══ -->
+  <div class="section-head">
+    <h2 class="section-title" style="--accent:var(--gold)">Distribuição Estratégica</h2>
+  </div>
+  <div class="grid g2" style="margin-bottom:32px">
+    <div class="card">
+      <div class="card-accent" style="background:var(--gold)"></div>
+      <div class="card-title">Market Share dos Consoles</div>
+      <div class="card-desc">Participação relativa de cada plataforma no volume total de vendas</div>
+      <div class="chart-box"><div id="marketShareChart"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-accent" style="background:var(--coral)"></div>
+      <div class="card-title">Penetração Regional</div>
+      <div class="card-desc">Peso estratégico de cada região — informa priorização de localização</div>
+      <div class="chart-box"><div id="regionalChart"></div></div>
+    </div>
+  </div>
 
-      .chart-head p {
-        color: var(--muted);
-        font-size: 0.82rem;
-        line-height: 1.4;
-      }
+  <!-- ══ ROW 3: Quadrant FULL WIDTH ══ -->
+  <div class="section-head">
+    <h2 class="section-title" style="--accent:var(--violet)">Quadrante Estratégico</h2>
+    <span class="section-sub">Nota × Vendas × Volume de títulos</span>
+  </div>
+  <div class="grid" style="margin-bottom:32px">
+    <div class="card full">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--violet),var(--cyan))"></div>
+      <div class="card-title">Gênero: Qualidade vs Potencial Comercial</div>
+      <div class="card-desc">Cada bolha = um gênero. Eixo X = nota média da crítica · Eixo Y = vendas totais (M) · Tamanho = quantidade de jogos. Quadrante superior-direito = zona ideal de investimento.</div>
+      <div class="chart-box"><div id="quadrantChart"></div></div>
+    </div>
+  </div>
 
-      .chart {
-        min-height: 330px;
-      }
+  <!-- ══ ROW 4: Histograma + Radar ══ -->
+  <div class="section-head">
+    <h2 class="section-title" style="--accent:var(--mint)">Qualidade e Radar</h2>
+  </div>
+  <div class="grid g2" style="margin-bottom:32px">
+    <div class="card">
+      <div class="card-accent" style="background:var(--mint)"></div>
+      <div class="card-title">Distribuição das Notas Críticas</div>
+      <div class="card-desc">Concentração de jogos por faixa de avaliação — indica maturidade e exigência do mercado</div>
+      <div class="chart-box"><div id="histogramChart"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-accent" style="background:var(--violet)"></div>
+      <div class="card-title">Radar Estratégico de Gêneros</div>
+      <div class="card-desc">Comparativo dos top 5 gêneros em 5 dimensões: vendas, crítica, presença global, volume e oportunidade</div>
+      <div class="chart-box"><div id="radarChart"></div></div>
+    </div>
+  </div>
 
-      .insights {
-        background: linear-gradient(
-          145deg,
-          rgba(16, 29, 49, 0.96),
-          rgba(11, 23, 40, 0.96)
-        );
-        border: 1px solid var(--border);
-        border-radius: 22px;
-        padding: 22px;
-        margin-bottom: 20px;
-      }
+  <!-- ══ ROW 5: Publishers FULL + Scatter ══ -->
+  <div class="section-head">
+    <h2 class="section-title" style="--accent:var(--sky)">Publishers & Correlação</h2>
+  </div>
+  <div class="grid" style="margin-bottom:32px">
+    <div class="card full">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--sky),var(--violet))"></div>
+      <div class="card-title">Publishers — Volume Comercial vs Nota da Crítica</div>
+      <div class="card-desc">Barras = vendas totais · Linha = nota média da crítica · Identifica publishers que combinam alcance e qualidade</div>
+      <div class="chart-box"><div id="publisherChart"></div></div>
+    </div>
+  </div>
 
-      .insights h3 {
-        margin-bottom: 14px;
-      }
+  <!-- ══ ROW 6: Scatter ══ -->
+  <div class="card full" style="margin-bottom:32px">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--coral),var(--gold))"></div>
+    <div class="card-title">Dispersão: Nota da Crítica × Vendas (Top 1200 Jogos)</div>
+    <div class="card-desc">Cada ponto = um jogo. Observe o padrão: jogos com nota acima de 7,5 tendem a concentrar as maiores vendas — o "teto de vidro" do mercado.</div>
+    <div class="chart-box"><div id="scatterChart"></div></div>
+    <div class="scatter-legend" id="scatterLegend"></div>
+  </div>
 
-      .insights ul {
-        list-style: none;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
+  <!-- ══ TOP GAMES TABLE ══ -->
+  <div class="section-head" style="margin-top:8px">
+    <h2 class="section-title" style="--accent:var(--gold)">Ranking de Jogos</h2>
+    <span class="section-sub">Top 20 por volume de vendas · dados do scatter</span>
+  </div>
+  <div class="card full" style="margin-bottom:40px">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--gold),var(--lime))"></div>
+    <div class="card-title">Top 20 Jogos por Vendas Globais</div>
+    <div class="card-desc">Extraídos dos dados de scatter do backend — nome completo, gênero, nota e barra de vendas relativa</div>
+    <div style="overflow-x:auto;margin-top:4px">
+      <table class="games-table" id="topGamesTable">
+        <thead><tr>
+          <th>#</th>
+          <th>Título</th>
+          <th>Gênero</th>
+          <th>Nota crítica</th>
+          <th style="min-width:180px">Vendas relativas</th>
+          <th>Vendas (M)</th>
+        </tr></thead>
+        <tbody id="topGamesBody"></tbody>
+      </table>
+    </div>
+  </div>
 
-      .insights li {
-        background: rgba(0, 212, 255, 0.06);
-        border: 1px solid rgba(0, 212, 255, 0.18);
-        padding: 14px;
-        border-radius: 14px;
-        color: #dbeafe;
-        line-height: 1.45;
-      }
+</div><!-- /wrap -->
 
-      .loading {
-        opacity: 0.6;
-        pointer-events: none;
-      }
+<footer class="footer wrap">
+  VGChartz · Dashboard Estratégico · Dados: VGChartz 2024 · &copy; Trabalho Acadêmico · Business Intelligence
+</footer>
 
-      @media (max-width: 1100px) {
-        .header {
-          flex-direction: column;
+<!-- ══════════════════════════════════════════ SCRIPTS ══ -->
+<script>
+/* ──────────────────────────── PALETTE ───────────────────────── */
+const P = {
+  lime:'#c8f135', cyan:'#34d9c3', coral:'#ff5c6b',
+  gold:'#ffcc44', violet:'#9d7bff', sky:'#4db3ff',
+  mint:'#3dffa8', ink2:'#12141d', ink3:'#1a1d2b',
+  chalk:'#f0eeea', chalk2:'#9a97a8', chalk3:'#5a576a',
+};
+
+const PALETTE = [
+  '#c8f135','#34d9c3','#ff5c6b','#ffcc44','#9d7bff',
+  '#4db3ff','#3dffa8','#ff9e44','#e879f9','#38bdf8',
+  '#fb923c','#f472b6','#a3e635','#60a5fa','#facc15',
+];
+
+const DARK_THEME = { mode:'dark', monochrome:{ enabled:false } };
+
+const BASE_CHART = (extra={}) => ({
+  chart:{
+    foreColor:P.chalk2,
+    toolbar:{show:false},
+    animations:{enabled:true,easing:'easeinout',speed:500},
+    fontFamily:"'DM Mono',monospace",
+    background:'transparent',
+    ...extra,
+  },
+  theme:DARK_THEME,
+  colors:PALETTE,
+  grid:{borderColor:'rgba(255,255,255,.06)',strokeDashArray:4},
+  tooltip:{
+    theme:'dark',
+    style:{fontFamily:"'DM Mono',monospace",fontSize:'11px'},
+  },
+  legend:{
+    fontFamily:"'DM Mono',monospace",fontSize:'11px',
+    labels:{colors:P.chalk2},
+  },
+});
+
+/* ──────────────────────────── STATE ─────────────────────────── */
+const charts = {};
+function destroy(id){if(charts[id]){charts[id].destroy();charts[id]=null;}}
+
+/* ──────────────────────────── LOAD GENRES ───────────────────── */
+async function loadGenres(){
+  try{
+    const res = await fetch('/api/genres');
+    const genres = await res.json();
+    const sel = document.getElementById('genreFilter');
+    genres.forEach(g=>{
+      const o=document.createElement('option');
+      o.value=g;o.textContent=g;sel.appendChild(o);
+    });
+  }catch(e){console.warn('genre fetch error',e)}
+}
+
+/* ──────────────────────────── LOAD DASHBOARD ────────────────── */
+async function loadDashboard(genre='all'){
+  const statusEl = document.getElementById('statusText');
+  const dotEl    = document.getElementById('statusDot');
+  dotEl.style.background = P.gold;
+  dotEl.style.boxShadow  = `0 0 8px ${P.gold}`;
+  statusEl.textContent   = 'Atualizando…';
+
+  try{
+    const res = await fetch(`/api/summary?genre=${encodeURIComponent(genre)}`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+
+    updateKPIs(d.globalMetrics);
+    renderConsoles(d.topConsoles);
+    renderGenres(d.topGenres);
+    renderMarketShare(d.marketShare);
+    renderRegional(d.regional);
+    renderQuadrant(d.quadrant);
+    renderHistogram(d.criticHistogram);
+    renderRadar(d.radar);
+    renderPublishers(d.topPublishers);
+    renderScatter(d.scatter);
+    renderInsights(d.insights);
+    renderTopGames(d.scatter);
+
+    dotEl.style.background = P.lime;
+    dotEl.style.boxShadow  = `0 0 8px ${P.lime}`;
+    statusEl.textContent   = `${d.globalMetrics.totalGames.toLocaleString('pt-BR')} jogos · ok`;
+  }catch(e){
+    console.error(e);
+    dotEl.style.background = P.coral;
+    statusEl.textContent   = 'Erro ao conectar ao Flask.';
+  }
+}
+
+/* ──────────────────────────── KPIs ─────────────────────────── */
+function updateKPIs(m){
+  document.getElementById('totalGames').textContent    = Number(m.totalGames).toLocaleString('pt-BR');
+  document.getElementById('totalSales').textContent    = `${Number(m.totalSales).toLocaleString('pt-BR',{maximumFractionDigits:0})}M`;
+  document.getElementById('avgCritic').textContent     = Number(m.avgCritic).toFixed(1);
+  document.getElementById('uniqueConsoles').textContent= Number(m.uniqueConsoles).toLocaleString('pt-BR');
+  document.getElementById('gamesChange').textContent   = m.totalGames > 0 ? '✓ dataset ativo' : 'sem dados';
+}
+
+/* ──────────────────────────── TOP CONSOLES ──────────────────── */
+function renderConsoles(data){
+  destroy('consoleChart');
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+  const maxV   = Math.max(...values);
+
+  charts['consoleChart'] = new ApexCharts(
+    document.getElementById('consoleChart'),
+    {
+      ...BASE_CHART({type:'bar',height:340}),
+      plotOptions:{bar:{horizontal:true,borderRadius:6,
+        barHeight:'65%',
+        dataLabels:{position:'right'}}},
+      dataLabels:{
+        enabled:true,
+        formatter:v=>`${Number(v).toFixed(0)}M`,
+        style:{fontSize:'10px',fontFamily:"'DM Mono',monospace",colors:[P.chalk3]},
+        offsetX:6,
+      },
+      series:[{name:'Vendas (M)',data:values}],
+      xaxis:{
+        categories:labels,
+        labels:{
+          formatter:v=>`${Number(v).toFixed(0)}M`,
+          style:{fontSize:'10px',fontFamily:"'DM Mono',monospace"},
+        },
+      },
+      yaxis:{labels:{style:{fontSize:'11px',fontFamily:"'DM Mono',monospace",colors:P.chalk2}}},
+      colors:labels.map((_,i)=>PALETTE[i%PALETTE.length]),
+      fill:{
+        type:'gradient',
+        gradient:{shade:'dark',type:'horizontal',gradientToColors:[P.cyan],opacityFrom:1,opacityTo:.7}
+      },
+    }
+  );
+  charts['consoleChart'].render();
+}
+
+/* ──────────────────────────── TOP GENRES ────────────────────── */
+function renderGenres(data){
+  destroy('genreChart');
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+
+  charts['genreChart'] = new ApexCharts(
+    document.getElementById('genreChart'),
+    {
+      ...BASE_CHART({type:'bar',height:340}),
+      plotOptions:{bar:{borderRadius:6,columnWidth:'60%'}},
+      dataLabels:{enabled:false},
+      series:[{name:'Vendas (M)',data:values}],
+      xaxis:{
+        categories:labels,
+        labels:{rotate:-32,style:{fontSize:'10px',fontFamily:"'DM Mono',monospace"}},
+      },
+      yaxis:{labels:{formatter:v=>`${Number(v).toFixed(0)}M`,style:{fontSize:'10px',fontFamily:"'DM Mono',monospace"}}},
+      colors:PALETTE,
+      fill:{
+        type:'gradient',
+        gradient:{shade:'dark',type:'vertical',gradientToColors:[P.lime],opacityFrom:1,opacityTo:.6}
+      },
+      tooltip:{y:{formatter:v=>`${Number(v).toFixed(1)}M unidades`}},
+    }
+  );
+  charts['genreChart'].render();
+}
+
+/* ──────────────────────────── MARKET SHARE ──────────────────── */
+function renderMarketShare(data){
+  destroy('marketShareChart');
+  charts['marketShareChart'] = new ApexCharts(
+    document.getElementById('marketShareChart'),
+    {
+      ...BASE_CHART({type:'donut',height:340}),
+      labels:data.labels,
+      series:data.values,
+      colors:PALETTE,
+      dataLabels:{
+        enabled:true,
+        formatter:(val,opts)=>`${opts.w.config.labels[opts.seriesIndex]}: ${Number(val).toFixed(1)}%`,
+        style:{fontSize:'10px',fontFamily:"'DM Mono',monospace"},
+        dropShadow:{enabled:false},
+      },
+      legend:{position:'bottom',horizontalAlign:'center',fontSize:'10px',
+        fontFamily:"'DM Mono',monospace",labels:{colors:P.chalk2},
+        markers:{width:8,height:8,radius:4}},
+      stroke:{colors:[P.ink2],width:3},
+      plotOptions:{pie:{donut:{
+        size:'65%',
+        labels:{
+          show:true,
+          total:{show:true,label:'Consoles',fontSize:'11px',fontFamily:"'DM Mono',monospace",color:P.chalk3,
+            formatter:w=>`${w.config.series.length}`},
+          value:{fontSize:'18px',fontFamily:"'Bebas Neue',sans-serif",color:P.chalk},
+          name:{fontSize:'10px',fontFamily:"'DM Mono',monospace",color:P.chalk3},
         }
+      }}},
+    }
+  );
+  charts['marketShareChart'].render();
+}
 
-        .control-panel {
-          width: 100%;
+/* ──────────────────────────── REGIONAL ──────────────────────── */
+function renderRegional(data){
+  destroy('regionalChart');
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+  const colors = [P.sky, P.mint, P.coral, P.gold];
+
+  charts['regionalChart'] = new ApexCharts(
+    document.getElementById('regionalChart'),
+    {
+      ...BASE_CHART({type:'polarArea',height:340}),
+      labels,
+      series:values,
+      colors,
+      stroke:{colors:[P.ink2],width:2},
+      fill:{opacity:.82},
+      dataLabels:{
+        enabled:true,
+        formatter:(val,opts)=>`${Number(val).toFixed(1)}%`,
+        style:{fontSize:'11px',fontFamily:"'DM Mono',monospace",fontWeight:'400'},
+      },
+      legend:{position:'bottom',labels:{colors:P.chalk2},
+        fontFamily:"'DM Mono',monospace",fontSize:'10px',
+        markers:{width:8,height:8,radius:4}},
+      tooltip:{y:{formatter:v=>`${Number(v).toFixed(1)}%`}},
+      yaxis:{show:false},
+    }
+  );
+  charts['regionalChart'].render();
+}
+
+/* ──────────────────────────── QUADRANT BUBBLE ───────────────── */
+function renderQuadrant(points){
+  destroy('quadrantChart');
+  // Scale bubble size
+  const maxZ = Math.max(...points.map(p=>p.z),1);
+
+  charts['quadrantChart'] = new ApexCharts(
+    document.getElementById('quadrantChart'),
+    {
+      ...BASE_CHART({type:'bubble',height:420}),
+      series: points.map((p,i)=>({
+        name:p.name,
+        data:[[p.x, p.y, Math.max(8, (p.z/maxZ)*60 + 10)]],
+      })),
+      colors: PALETTE,
+      xaxis:{
+        title:{text:'Nota Média da Crítica',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'11px'}},
+        min:0,max:10,tickAmount:10,
+        labels:{formatter:v=>Number(v).toFixed(1),style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}},
+      },
+      yaxis:{
+        title:{text:'Vendas Totais (M)',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'11px'}},
+        labels:{formatter:v=>`${Number(v).toFixed(0)}M`,style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}},
+      },
+      dataLabels:{
+        enabled:true,
+        formatter:(val,opts)=>opts.w.config.series[opts.seriesIndex].name,
+        style:{fontSize:'10px',fontFamily:"'DM Mono',monospace",fontWeight:'400',colors:[P.chalk]},
+        background:{enabled:true,foreColor:P.chalk3,borderRadius:4,padding:3,
+          borderColor:'transparent',opacity:.65},
+      },
+      tooltip:{
+        custom:({seriesIndex,w})=>{
+          const p=points[seriesIndex];
+          return `<div style="padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;background:#1a1d2b;border:1px solid rgba(255,255,255,.1);border-radius:8px;">
+            <strong style="color:${PALETTE[seriesIndex%PALETTE.length]}">${p.name}</strong><br/>
+            Nota crítica: ${p.x}<br/>
+            Vendas: ${p.y}M<br/>
+            Jogos: ${p.z.toLocaleString('pt-BR')}
+          </div>`;
         }
+      },
+      legend:{show:true,position:'bottom',fontFamily:"'DM Mono',monospace",fontSize:'10px',
+        labels:{colors:P.chalk2},markers:{width:8,height:8,radius:4}},
+    }
+  );
+  charts['quadrantChart'].render();
+}
 
-        .kpi-grid {
-          grid-template-columns: repeat(2, 1fr);
+/* ──────────────────────────── HISTOGRAM ────────────────────── */
+function renderHistogram(data){
+  destroy('histogramChart');
+  const maxV = Math.max(...data.values,1);
+
+  charts['histogramChart'] = new ApexCharts(
+    document.getElementById('histogramChart'),
+    {
+      ...BASE_CHART({type:'bar',height:320}),
+      plotOptions:{bar:{borderRadius:8,columnWidth:'55%',distributed:true}},
+      dataLabels:{
+        enabled:true,
+        formatter:v=>Number(v).toLocaleString('pt-BR'),
+        style:{fontSize:'10px',fontFamily:"'DM Mono',monospace"},
+      },
+      series:[{name:'Jogos',data:data.values}],
+      xaxis:{
+        categories:data.labels,
+        labels:{style:{fontFamily:"'DM Mono',monospace",fontSize:'11px'}},
+        title:{text:'Faixa de nota',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'10px'}},
+      },
+      yaxis:{labels:{style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}}},
+      colors:['#454265','#5a57a8','#7b77e0','#c8f135','#3dffa8'],
+      fill:{type:'gradient',gradient:{shade:'dark',type:'vertical',gradientToColors:[P.lime],opacityFrom:1,opacityTo:.7}},
+      tooltip:{y:{formatter:v=>`${Number(v).toLocaleString('pt-BR')} jogos`}},
+      legend:{show:false},
+      annotations:{
+        xaxis:[{
+          x:'6-8',borderColor:P.gold,borderWidth:2,
+          label:{text:'Zona 7,5+',style:{fontFamily:"'DM Mono',monospace",fontSize:'9px',
+            background:'rgba(255,204,68,.15)',color:P.gold,borderColor:'transparent'}},
+        }]
+      },
+    }
+  );
+  charts['histogramChart'].render();
+}
+
+/* ──────────────────────────── RADAR ────────────────────────── */
+function renderRadar(data){
+  destroy('radarChart');
+  if(!data.series||!data.series.length) return;
+
+  charts['radarChart'] = new ApexCharts(
+    document.getElementById('radarChart'),
+    {
+      ...BASE_CHART({type:'radar',height:320}),
+      series:data.series,
+      xaxis:{categories:data.categories,
+        labels:{style:{fontFamily:"'DM Mono',monospace",fontSize:'10px',colors:Array(5).fill(P.chalk2)}}},
+      yaxis:{show:false,min:0,max:100},
+      fill:{opacity:.18},
+      stroke:{width:2},
+      markers:{size:4,hover:{size:6}},
+      colors:PALETTE.slice(0,data.series.length),
+      plotOptions:{radar:{
+        polygons:{strokeColors:'rgba(255,255,255,.06)',fill:{colors:['transparent','rgba(255,255,255,.02)']}},
+      }},
+      legend:{show:true,position:'bottom',fontFamily:"'DM Mono',monospace",fontSize:'10px',
+        labels:{colors:P.chalk2},markers:{width:8,height:8,radius:4}},
+    }
+  );
+  charts['radarChart'].render();
+}
+
+/* ──────────────────────────── PUBLISHERS ────────────────────── */
+function renderPublishers(data){
+  destroy('publisherChart');
+
+  charts['publisherChart'] = new ApexCharts(
+    document.getElementById('publisherChart'),
+    {
+      ...BASE_CHART({type:'line',height:360}),
+      stroke:{width:[0,3],curve:'smooth'},
+      plotOptions:{bar:{borderRadius:6,columnWidth:'50%'}},
+      dataLabels:{enabled:false},
+      series:[
+        {name:'Vendas (M)',type:'column',data:data.sales},
+        {name:'Nota Média',type:'line',data:data.critic},
+      ],
+      xaxis:{
+        categories:data.labels,
+        labels:{rotate:-30,style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}},
+      },
+      yaxis:[
+        {title:{text:'Vendas (M)',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'10px'}},
+          labels:{formatter:v=>`${Number(v).toFixed(0)}M`,style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}}},
+        {opposite:true,min:0,max:10,
+          title:{text:'Nota média',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'10px'}},
+          labels:{formatter:v=>Number(v).toFixed(1),style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}}},
+      ],
+      colors:[P.sky, P.gold],
+      fill:{type:['gradient','solid'],
+        gradient:{shade:'dark',type:'vertical',gradientToColors:[P.violet],opacityFrom:1,opacityTo:.5}},
+      markers:{size:[0,5],strokeColors:P.ink2,strokeWidth:2,hover:{size:7}},
+      tooltip:{shared:true,intersect:false,
+        y:[
+          {formatter:v=>`${Number(v).toFixed(1)}M unidades`},
+          {formatter:v=>Number(v).toFixed(2)},
+        ]},
+      legend:{show:true,position:'top',fontFamily:"'DM Mono',monospace",fontSize:'10px',
+        labels:{colors:P.chalk2},markers:{width:8,height:8,radius:4}},
+    }
+  );
+  charts['publisherChart'].render();
+}
+
+/* ──────────────────────────── SCATTER ──────────────────────── */
+function renderScatter(points){
+  destroy('scatterChart');
+
+  // Separate into quadrants for color coding
+  const genreSet = [...new Set(points.map(p=>p.genre))].slice(0,12);
+  const genreColor = Object.fromEntries(genreSet.map((g,i)=>[g,PALETTE[i%PALETTE.length]]));
+
+  const seriesByGenre = genreSet.map(g=>({
+    name:g,
+    data: points.filter(p=>p.genre===g).map(p=>[p.critic_score,p.total_sales]),
+  })).filter(s=>s.data.length>0);
+
+  charts['scatterChart'] = new ApexCharts(
+    document.getElementById('scatterChart'),
+    {
+      ...BASE_CHART({type:'scatter',height:420,zoom:{enabled:true,type:'xy'}}),
+      series:seriesByGenre,
+      colors:genreSet.map(g=>genreColor[g]),
+      xaxis:{
+        min:0,max:10,tickAmount:10,
+        title:{text:'Nota da Crítica',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'11px'}},
+        labels:{formatter:v=>Number(v).toFixed(1),style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}},
+      },
+      yaxis:{
+        title:{text:'Vendas (M)',style:{fontFamily:"'DM Mono',monospace",color:P.chalk3,fontSize:'11px'}},
+        labels:{formatter:v=>`${Number(v).toFixed(0)}M`,style:{fontFamily:"'DM Mono',monospace",fontSize:'10px'}},
+      },
+      markers:{size:4,strokeWidth:0,hover:{size:7},fillOpacity:.7},
+      tooltip:{
+        custom:({seriesIndex,dataPointIndex,w})=>{
+          const p = points.filter(pp=>pp.genre===genreSet[seriesIndex])[dataPointIndex]||{};
+          return `<div style="padding:10px 14px;font-family:'DM Mono',monospace;font-size:10px;background:#1a1d2b;border:1px solid rgba(255,255,255,.1);border-radius:8px;max-width:220px;">
+            <strong style="color:${PALETTE[seriesIndex%PALETTE.length]};font-size:11px">${p.title||'—'}</strong><br/>
+            <span style="color:#9a97a8">Gênero:</span> ${p.genre}<br/>
+            <span style="color:#9a97a8">Nota:</span> ${Number(p.critic_score||0).toFixed(1)}<br/>
+            <span style="color:#9a97a8">Vendas:</span> ${Number(p.total_sales||0).toFixed(2)}M
+          </div>`;
         }
+      },
+      legend:{show:true,position:'bottom',fontFamily:"'DM Mono',monospace",fontSize:'10px',
+        labels:{colors:P.chalk2},markers:{width:8,height:8,radius:4},
+        itemMargin:{horizontal:8,vertical:4}},
+      annotations:{
+        xaxis:[{x:7.5,borderColor:P.lime,borderWidth:1.5,strokeDashArray:4,
+          label:{text:'Piso 7,5',position:'bottom',
+            style:{fontFamily:"'DM Mono',monospace",fontSize:'9px',
+              background:'rgba(200,241,53,.12)',color:P.lime,borderColor:'transparent',padding:{top:4,bottom:4,left:6,right:6}}}}],
+      },
+    }
+  );
+  charts['scatterChart'].render();
 
-        .charts-grid {
-          grid-template-columns: 1fr;
-        }
+  // Legend chips
+  const leg = document.getElementById('scatterLegend');
+  leg.innerHTML = genreSet.map(g=>`
+    <span class="sl-item">
+      <span class="sl-dot" style="background:${genreColor[g]}"></span>${g}
+    </span>`).join('');
+}
 
-        .chart-card.large {
-          grid-column: span 1;
-        }
+/* ──────────────────────────── INSIGHTS ─────────────────────── */
+function renderInsights(insights){
+  const ul = document.getElementById('insightsList');
+  ul.innerHTML = insights.map((txt,i)=>`
+    <div class="insight-item" style="border-left-color:${PALETTE[i%PALETTE.length]}">${txt}</div>
+  `).join('');
+}
 
-        .insights ul {
-          grid-template-columns: 1fr;
-        }
-      }
+/* ──────────────────────────── TOP GAMES TABLE ──────────────── */
+function renderTopGames(scatterData){
+  if(!scatterData||!scatterData.length) return;
+  const top = [...scatterData]
+    .sort((a,b)=>b.total_sales-a.total_sales)
+    .slice(0,20);
+  const maxSales = top[0]?.total_sales || 1;
+  const genreColors = {};
+  const genreList = [...new Set(top.map(g=>g.genre))];
+  genreList.forEach((g,i)=>genreColors[g]=PALETTE[i%PALETTE.length]);
 
-      @media (max-width: 650px) {
-        body {
-          padding: 16px;
-        }
+  const RANK_STYLE = [
+    {bg:'linear-gradient(90deg,#ffcc44,#ff9e44)',shadow:'0 0 10px rgba(255,204,68,.4)'},
+    {bg:'linear-gradient(90deg,#c8f135,#34d9c3)',shadow:'0 0 10px rgba(200,241,53,.3)'},
+    {bg:'linear-gradient(90deg,#ff5c6b,#ff9e44)',shadow:'0 0 10px rgba(255,92,107,.3)'},
+  ];
 
-        .kpi-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <main class="container" id="page">
-      <section class="header">
-        <div class="title-block">
-          <h1>🎮 VGChartz · Dashboard Estratégico</h1>
-          <p>
-            Análise de vendas, crítica, plataformas, regiões e oportunidades
-            estratégicas com base no CSV VGChartz.
-          </p>
+  const tbody = document.getElementById('topGamesBody');
+  tbody.innerHTML = top.map((g,i)=>{
+    const pct = (g.total_sales/maxSales*100).toFixed(0);
+    const color = genreColors[g.genre]||PALETTE[0];
+    const rankStyle = i<3 ? `background:${RANK_STYLE[i].bg};-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;` : '';
+    const stars = g.critic_score >= 9?'★★★★★':g.critic_score>=8?'★★★★☆':g.critic_score>=7?'★★★☆☆':g.critic_score>=6?'★★☆☆☆':'★☆☆☆☆';
+    return `<tr>
+      <td class="gt-rank" style="${rankStyle}">${i+1}</td>
+      <td class="gt-title">${g.title||'—'}</td>
+      <td><span class="genre-chip" style="border-color:${color}44;color:${color}">${g.genre}</span></td>
+      <td>
+        <span class="gt-score">
+          <span class="score-star">${stars}</span>
+          ${Number(g.critic_score||0).toFixed(1)}
+        </span>
+      </td>
+      <td>
+        <div class="gt-bar">
+          <div class="gt-bar-bg">
+            <div class="gt-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color},${color}88)"></div>
+          </div>
+          <span style="font-size:10px;color:${color};white-space:nowrap">${pct}%</span>
         </div>
-
-        <div class="control-panel">
-          <label for="genreFilter">Filtrar por gênero</label>
-          <select id="genreFilter">
-            <option value="all">Todos os gêneros</option>
-          </select>
-          <div class="status" id="statusText">Carregando dados...</div>
-        </div>
-      </section>
-
-      <section class="kpi-grid">
-        <article class="kpi-card">
-          <div class="kpi-label">Jogos analisados</div>
-          <div class="kpi-value" id="totalGames">-</div>
-          <div class="kpi-hint">Quantidade no filtro atual</div>
-        </article>
-
-        <article class="kpi-card">
-          <div class="kpi-label">Vendas totais</div>
-          <div class="kpi-value" id="totalSales">-</div>
-          <div class="kpi-hint">Em milhões de unidades</div>
-        </article>
-
-        <article class="kpi-card">
-          <div class="kpi-label">Nota média</div>
-          <div class="kpi-value" id="avgCritic">-</div>
-          <div class="kpi-hint">Média da crítica</div>
-        </article>
-
-        <article class="kpi-card">
-          <div class="kpi-label">Consoles únicos</div>
-          <div class="kpi-value" id="uniqueConsoles">-</div>
-          <div class="kpi-hint">Plataformas encontradas</div>
-        </article>
-      </section>
-
-      <section class="charts-grid">
-        <article class="chart-card">
-          <div class="chart-head">
-            <h3>🏆 Top Consoles por Vendas</h3>
-            <p>Mostra quais plataformas concentram maior volume comercial.</p>
-          </div>
-          <div id="consoleChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-head">
-            <h3>🎯 Top Gêneros por Vendas</h3>
-            <p>Ajuda a entender quais categorias dominam o mercado.</p>
-          </div>
-          <div id="genreChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-head">
-            <h3>🕹️ Market Share dos Consoles</h3>
-            <p>Participação relativa das plataformas no volume de vendas.</p>
-          </div>
-          <div id="marketShareChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-head">
-            <h3>🌎 Distribuição Regional</h3>
-            <p>Indica quais regiões têm maior peso estratégico.</p>
-          </div>
-          <div id="regionalChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card large">
-          <div class="chart-head">
-            <h3>📈 Quadrante Estratégico: Nota × Vendas</h3>
-            <p>
-              Cada bolha representa um gênero. Quanto maior a bolha, maior a
-              quantidade de jogos.
-            </p>
-          </div>
-          <div id="quadrantChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-head">
-            <h3>⭐ Distribuição das Notas</h3>
-            <p>Mostra concentração de jogos por faixa de avaliação crítica.</p>
-          </div>
-          <div id="histogramChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-head">
-            <h3>🧭 Radar Estratégico</h3>
-            <p>
-              Compara gêneros por vendas, crítica, presença global e
-              oportunidade.
-            </p>
-          </div>
-          <div id="radarChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card large">
-          <div class="chart-head">
-            <h3>🏢 Publishers: Vendas e Nota Média</h3>
-            <p>
-              Compara volume comercial com percepção crítica das principais
-              publishers.
-            </p>
-          </div>
-          <div id="publisherChart" class="chart"></div>
-        </article>
-
-        <article class="chart-card large">
-          <div class="chart-head">
-            <h3>🔬 Jogos: Crítica × Vendas</h3>
-            <p>
-              Ajuda a observar se notas maiores se relacionam com maior venda.
-            </p>
-          </div>
-          <div id="scatterChart" class="chart"></div>
-        </article>
-      </section>
-
-      <section class="insights">
-        <h3>💡 Insights automáticos</h3>
-        <ul id="insightsList"></ul>
-      </section>
-    </main>
-
-    <script>
-      const chartTheme = {
-        mode: "dark",
-        palette: "palette1",
-      };
-
-      const colors = [
-        "#00d4ff",
-        "#22c55e",
-        "#8b5cf6",
-        "#f59e0b",
-        "#ef4444",
-        "#14b8a6",
-        "#ec4899",
-        "#38bdf8",
-        "#a3e635",
-        "#fb7185",
-      ];
-
-      const charts = {};
-
-      function destroyChart(id) {
-        if (charts[id]) {
-          charts[id].destroy();
-          charts[id] = null;
-        }
-      }
-
-      function baseOptions() {
-        return {
-          chart: {
-            foreColor: "#cbd5e1",
-            toolbar: {
-              show: false,
-            },
-            animations: {
-              enabled: true,
-              easing: "easeinout",
-              speed: 600,
-            },
-          },
-          theme: chartTheme,
-          colors,
-          grid: {
-            borderColor: "rgba(148,163,184,0.15)",
-          },
-          tooltip: {
-            theme: "dark",
-          },
-        };
-      }
-
-      async function loadGenres() {
-        const response = await fetch("/api/genres");
-        const genres = await response.json();
-
-        const select = document.getElementById("genreFilter");
-
-        genres.forEach((genre) => {
-          const option = document.createElement("option");
-          option.value = genre;
-          option.textContent = genre;
-          select.appendChild(option);
-        });
-      }
-
-      async function loadDashboard(genre = "all") {
-        const page = document.getElementById("page");
-        const status = document.getElementById("statusText");
-
-        try {
-          page.classList.add("loading");
-          status.textContent = "Atualizando dashboard...";
-
-          const response = await fetch(
-            `/api/summary?genre=${encodeURIComponent(genre)}`,
-          );
-
-          if (!response.ok) {
-            throw new Error(`Erro HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          updateKPIs(data.globalMetrics);
-          renderTopConsoles(data.topConsoles);
-          renderTopGenres(data.topGenres);
-          renderMarketShare(data.marketShare);
-          renderRegional(data.regional);
-          renderQuadrant(data.quadrant);
-          renderHistogram(data.criticHistogram);
-          renderRadar(data.radar);
-          renderPublishers(data.topPublishers);
-          renderScatter(data.scatter);
-          renderInsights(data.insights);
-
-          status.textContent = "Dados carregados com sucesso.";
-        } catch (error) {
-          console.error(error);
-          status.textContent = "Erro ao carregar dados. Verifique o Flask.";
-        } finally {
-          page.classList.remove("loading");
-        }
-      }
-
-      function updateKPIs(metrics) {
-        document.getElementById("totalGames").textContent = Number(
-          metrics.totalGames,
-        ).toLocaleString("pt-BR");
-
-        document.getElementById("totalSales").textContent = `${Number(
-          metrics.totalSales,
-        ).toLocaleString("pt-BR", {
-          maximumFractionDigits: 0,
-        })}M`;
-
-        document.getElementById("avgCritic").textContent = Number(
-          metrics.avgCritic,
-        ).toFixed(1);
-
-        document.getElementById("uniqueConsoles").textContent = Number(
-          metrics.uniqueConsoles,
-        ).toLocaleString("pt-BR");
-      }
-
-      function renderTopConsoles(data) {
-        const id = "consoleChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "bar",
-            height: 330,
-          },
-          plotOptions: {
-            bar: {
-              horizontal: true,
-              borderRadius: 6,
-            },
-          },
-          series: [
-            {
-              name: "Vendas",
-              data: Object.values(data),
-            },
-          ],
-          xaxis: {
-            categories: Object.keys(data),
-            labels: {
-              formatter: (value) => `${Number(value).toFixed(0)}M`,
-            },
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderTopGenres(data) {
-        const id = "genreChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "bar",
-            height: 330,
-          },
-          plotOptions: {
-            bar: {
-              borderRadius: 6,
-              columnWidth: "55%",
-            },
-          },
-          series: [
-            {
-              name: "Vendas",
-              data: Object.values(data),
-            },
-          ],
-          xaxis: {
-            categories: Object.keys(data),
-          },
-          yaxis: {
-            labels: {
-              formatter: (value) => `${Number(value).toFixed(0)}M`,
-            },
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderMarketShare(data) {
-        const id = "marketShareChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "donut",
-            height: 330,
-          },
-          labels: data.labels,
-          series: data.values,
-          legend: {
-            position: "bottom",
-          },
-          dataLabels: {
-            enabled: true,
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderRegional(data) {
-        const id = "regionalChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "radialBar",
-            height: 330,
-          },
-          labels: Object.keys(data),
-          series: Object.values(data),
-          plotOptions: {
-            radialBar: {
-              dataLabels: {
-                value: {
-                  formatter: (value) => `${Number(value).toFixed(1)}%`,
-                },
-              },
-            },
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderQuadrant(points) {
-        const id = "quadrantChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "bubble",
-            height: 390,
-          },
-          series: points.map((point) => ({
-            name: point.name,
-            data: [[point.x, point.y, point.z]],
-          })),
-          xaxis: {
-            title: {
-              text: "Nota média da crítica",
-            },
-            min: 0,
-            max: 10,
-          },
-          yaxis: {
-            title: {
-              text: "Vendas totais (M)",
-            },
-            labels: {
-              formatter: (value) => `${Number(value).toFixed(0)}M`,
-            },
-          },
-          tooltip: {
-            custom: function ({ seriesIndex, w }) {
-              const item = points[seriesIndex];
-
-              return `
-                <div style="padding:10px">
-                  <strong>${item.name}</strong><br/>
-                  Nota: ${item.x}<br/>
-                  Vendas: ${item.y}M<br/>
-                  Jogos: ${item.z}
-                </div>
-              `;
-            },
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderHistogram(data) {
-        const id = "histogramChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "area",
-            height: 330,
-          },
-          stroke: {
-            curve: "smooth",
-            width: 3,
-          },
-          fill: {
-            type: "gradient",
-            gradient: {
-              shadeIntensity: 0.4,
-              opacityFrom: 0.55,
-              opacityTo: 0.05,
-            },
-          },
-          series: [
-            {
-              name: "Quantidade de jogos",
-              data: data.values,
-            },
-          ],
-          xaxis: {
-            categories: data.labels,
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderRadar(data) {
-        const id = "radarChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "radar",
-            height: 330,
-          },
-          series: data.series,
-          xaxis: {
-            categories: data.categories,
-          },
-          yaxis: {
-            min: 0,
-            max: 100,
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderPublishers(data) {
-        const id = "publisherChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "line",
-            height: 380,
-          },
-          stroke: {
-            width: [0, 4],
-            curve: "smooth",
-          },
-          plotOptions: {
-            bar: {
-              borderRadius: 6,
-              columnWidth: "50%",
-            },
-          },
-          series: [
-            {
-              name: "Vendas",
-              type: "column",
-              data: data.sales,
-            },
-            {
-              name: "Nota média",
-              type: "line",
-              data: data.critic,
-            },
-          ],
-          xaxis: {
-            categories: data.labels,
-          },
-          yaxis: [
-            {
-              title: {
-                text: "Vendas (M)",
-              },
-            },
-            {
-              opposite: true,
-              min: 0,
-              max: 10,
-              title: {
-                text: "Nota média",
-              },
-            },
-          ],
-        });
-
-        charts[id].render();
-      }
-
-      function renderScatter(points) {
-        const id = "scatterChart";
-        destroyChart(id);
-
-        charts[id] = new ApexCharts(document.querySelector(`#${id}`), {
-          ...baseOptions(),
-          chart: {
-            ...baseOptions().chart,
-            type: "scatter",
-            height: 390,
-            zoom: {
-              enabled: true,
-            },
-          },
-          series: [
-            {
-              name: "Jogos",
-              data: points.map((point) => [
-                point.critic_score,
-                point.total_sales,
-              ]),
-            },
-          ],
-          xaxis: {
-            title: {
-              text: "Nota da crítica",
-            },
-            min: 0,
-            max: 10,
-          },
-          yaxis: {
-            title: {
-              text: "Vendas (M)",
-            },
-            labels: {
-              formatter: (value) => `${Number(value).toFixed(0)}M`,
-            },
-          },
-        });
-
-        charts[id].render();
-      }
-
-      function renderInsights(insights) {
-        const list = document.getElementById("insightsList");
-        list.innerHTML = "";
-
-        insights.forEach((item) => {
-          const li = document.createElement("li");
-          li.textContent = item;
-          list.appendChild(li);
-        });
-      }
-
-      document
-        .getElementById("genreFilter")
-        .addEventListener("change", (event) => {
-          loadDashboard(event.target.value);
-        });
-
-      loadGenres();
-      loadDashboard();
-    </script>
-  </body>
+      </td>
+      <td style="font-family:'DM Mono',monospace;color:${color}">${Number(g.total_sales||0).toFixed(2)}M</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ──────────────────────────── INIT ─────────────────────────── */
+document.getElementById('genreFilter').addEventListener('change', e=>{
+  loadDashboard(e.target.value);
+});
+
+loadGenres();
+loadDashboard();
+</script>
+</body>
 </html>
