@@ -56,7 +56,7 @@ def load_dataset():
     if not CSV_PATH.exists():
         raise FileNotFoundError(f"CSV não encontrado em: {CSV_PATH}")
 
-    df = pd.read_csv(CSV_PATH)
+    df = pd.read_csv("vgchartz_consolidated.csv")
 
     missing = [col for col in REQUIRED_COLS if col not in df.columns]
     if missing:

@@ -1,0 +1,129 @@
+========================================================================
+  VGChartz 2024 — Script de Tratamento de Dados
+  Executado em: 2026-06-04 00:22:04
+========================================================================
+
+[1] CARGA DO ARQUIVO
+    Linhas carregadas :  64,016
+    Colunas           : 14
+    Colunas presentes : ['img', 'title', 'console', 'genre', 'publisher', 'developer', 'critic_score', 'total_sales', 'na_sales', 'jp_sales', 'pal_sales', 'other_sales', 'release_date', 'last_update']
+    ✓ Coluna 'img' removida
+
+[2] NORMALIZAÇÃO DE TEXTO
+    ✓ Títulos e campos de texto: strip + substituição de placeholders
+
+[3] DUPLICATAS EXATAS
+    Duplicatas removidas (title+console): 225
+    Linhas restantes                    : 63,791
+
+[4] CLASSIFICAÇÃO DE REGISTROS
+    base_game                : 61,620
+    aggregate_record         :  1,602
+    compilation              :    334
+    multi_game_bundle        :    129
+    dlc_expansion            :    106
+
+[5] FILTRAGEM — REMOVER NÃO-JOGOS
+    Registros removidos : 2,171
+    Jogos mantidos      : 61,620
+      → aggregate_record: 1,602
+      → compilation: 334
+      → multi_game_bundle: 129
+      → dlc_expansion: 106
+    ℹ Registros removidos salvos em: vgchartz_removidos.csv
+
+[6] TRATAMENTO DE DATAS
+    Datas válidas   : 54,760
+    Datas ausentes  : 6,860
+    Intervalo       : 1973 – 2024
+
+[7] RECONSTRUÇÃO DE VENDAS
+    total_sales ausentes antes    : 42,956
+    Recuperados via soma regional : 0
+    total_sales ausentes após     : 42,956
+
+[8] IMPUTAÇÃO DE VENDAS AUSENTES
+    total_sales    : 42,956 ausentes imputados via média gênero+console → gênero → mediana global
+    na_sales       : 49,149 ausentes imputados via média gênero+console → gênero → mediana global
+    jp_sales       : 54,980 ausentes imputados via média gênero+console → gênero → mediana global
+    pal_sales      : 48,958 ausentes imputados via média gênero+console → gênero → mediana global
+    other_sales    : 46,681 ausentes imputados via média gênero+console → gênero → mediana global
+
+    Linhas com total_sales = 0 após imputação: 2,418
+
+[9] IMPUTAÇÃO DE CRITIC_SCORE
+    Ausentes originais: 55,015 (89.3%)
+    ✓ Imputação: média gênero+console → média gênero → média global
+    critic_score ausentes restantes: 0
+
+[10] COLUNAS DERIVADAS
+    ✓ score_normalized   — nota em escala 0–100
+    ✓ est_revenue_usd_M  — receita estimada (sales × $40)
+    ✓ platform_gen       — geração/tipo de plataforma
+    ✓ release_decade     — década de lançamento
+    ✓ release_year       — ano extraído da data
+    ✓ release_month      — mês extraído da data
+
+[11] TIPAGEM FINAL
+    ✓ Tipos numéricos aplicados, NaN de texto preenchidos
+
+[12] SALVANDO vgchartz_clean.csv
+    ✓ 61,620 linhas × 20 colunas salvas em vgchartz_clean.csv
+
+[13] CONSOLIDAÇÃO POR JOGO (soma de todos os consoles)
+    ✓ 39,049 jogos únicos consolidados
+    ✓ Salvos em vgchartz_consolidated.csv
+
+========================================================================
+  RESUMO FINAL
+========================================================================
+  Registros originais          :  64,016
+  Duplicatas removidas         :     225
+  DLCs / Expansões removidos   :     106
+  Bundles multi-jogo removidos :     129
+  Compilações removidas        :     334
+  Registros agregados removidos:   1,602
+  Jogos únicos (por console)   :  61,620
+  Jogos únicos (consolidados)  :  39,049
+
+  Arquivos gerados:
+    → vgchartz_clean.csv   (por console)
+    → vgchartz_consolidated.csv  (consolidado)
+    → vgchartz_removidos.csv      (auditoria)
+    → relatorio_limpeza.txt     (este relatório)
+========================================================================
+
+  TOP 10 JOGOS POR VENDAS CONSOLIDADAS:
+    Grand Theft Auto V                             65.50M  Action       nota:9.7  7 console(s)
+    Call of Duty: Black Ops                        31.67M  Shooter      nota:8.8  7 console(s)
+    Call of Duty: Modern Warfare 3                 30.71M  Shooter      nota:8.8  4 console(s)
+    Call of Duty: Black Ops II                     29.59M  Shooter      nota:8.6  4 console(s)
+    Call of Duty: Ghosts                           28.80M  Shooter      nota:8.8  6 console(s)
+    Call of Duty: Black Ops 3                      26.72M  Shooter      nota:8.1  5 console(s)
+    Call of Duty: Modern Warfare 2                 25.70M  Shooter      nota:9.5  5 console(s)
+    Minecraft                                      25.12M  Misc         nota:10.0  11 console(s)
+    Grand Theft Auto IV                            22.61M  Action       nota:10.0  4 console(s)
+    Call of Duty: Advanced Warfare                 21.78M  Shooter      nota:9.1  5 console(s)
+
+  DISTRIBUIÇÃO POR GÊNERO (top 10 por vendas totais consolidadas):
+    Action             total:  3063.6M  jogos:5,126.0  média: 0.60M
+    Shooter            total:  2738.5M  jogos:2,975.0  média: 0.92M
+    Sports             total:  2430.1M  jogos:3,164.0  média: 0.77M
+    Misc               total:  2123.1M  jogos:6,452.0  média: 0.33M
+    Role-Playing       total:  1427.9M  jogos:3,566.0  média: 0.40M
+    Platform           total:  1170.4M  jogos:1,961.0  média: 0.60M
+    Racing             total:  1095.1M  jogos:1,864.0  média: 0.59M
+    Adventure          total:   914.7M  jogos:4,074.0  média: 0.22M
+    Fighting           total:   790.4M  jogos:1,337.0  média: 0.59M
+    Simulation         total:   788.2M  jogos:2,225.0  média: 0.35M
+
+  VENDAS POR GERAÇÃO DE PLATAFORMA:
+    Retro                4881.2M
+    Last Gen             2797.1M
+    Previous Gen         2633.6M
+    Handheld             2321.6M
+    Other                2095.1M
+    PC/Digital           1579.7M
+    Digital              1059.9M
+    Current Gen           795.4M
+    Mobile                355.7M
